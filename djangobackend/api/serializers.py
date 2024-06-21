@@ -1,12 +1,11 @@
 from rest_framework import serializers
-from .models import Student
-
-class StudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = '__all__'
+from .models import Images
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Images
+        fields = '__all__'

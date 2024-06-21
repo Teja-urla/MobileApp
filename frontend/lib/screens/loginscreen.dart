@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/backend/student_details.dart';
+import 'package:frontend/backend/user_details.dart';
 import 'package:frontend/screens/homepage.dart';
 
 class Loginscreen extends StatefulWidget {
@@ -10,7 +10,7 @@ class Loginscreen extends StatefulWidget {
 }
 
 class _LoginscreenState extends State<Loginscreen> {
-  Student student = Student();
+  User user = User();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
@@ -18,9 +18,7 @@ class _LoginscreenState extends State<Loginscreen> {
   void _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
-    var student_details = await student.getStudentDetails();
-    print(student_details);
-    bool isValid1 = await student.sendStudentDetails(username, password);
+    bool isValid1 = await user.login(username, password);
 
     if (isValid1) {
       // Navigate to home page

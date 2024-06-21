@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/loginscreen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:frontend/backend/upload_image.dart';
-import 'dart:io';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
@@ -13,8 +14,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final Images images = Images();
-  String folderPath = 'No Folder Selected';
-  List<String> selectedFiles = [];
+  String choosen_image_name = 'No Image Selected';
+  FilePickerResult? result;
+  List<PlatformFile> selectedFiles = [];
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +29,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         centerTitle: true,
+        // back button
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -37,14 +40,14 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-      backgroundColor: const Color(0xffE8EDF0),
+      backgroundColor: Color(0xffE8EDF0),
       body: Column(
         children: [
           const SizedBox(height: 20),
           Container(
             margin: const EdgeInsets.only(top: 5.0, left: 0.0),
             child: const Text(
-              'Upload Folder',
+              'Upload Image',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -59,28 +62,26 @@ class _HomePageState extends State<HomePage> {
               height: 35,
               child: ElevatedButton(
                 onPressed: () async {
-                  String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+                  result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['jpg', 'jpeg', 'png'],
+                    allowMultiple: true
+                  );
 
-                  if (selectedDirectory != null) {
+                  if (result != null) {
                     setState(() {
-                      folderPath = selectedDirectory;
-                      selectedFiles = Directory(selectedDirectory)
-                          .listSync()
-                          .whereType<File>()
-                          .map((file) => file.path.split('/').last)
-                          .where((fileName) => ['jpg', 'jpeg', 'png'].contains(fileName.split('.').last.toLowerCase()))
-                          .toList();
+                      selectedFiles = result!.files;
                     });
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFFFFF),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
+                    borderRadius: BorderRadius.circular(0), 
                   ),
                 ),
                 child: const Text(
-                  'Select Folder',
+                  'Select Image',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.black,
@@ -90,43 +91,57 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 50),
-          Container(
-            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
-            child: Column(
-              children: selectedFiles.map((file) {
-                return Text(
-                  'Selected File: $file',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-              }).toList(),
+          for (var file in selectedFiles)
+            Container(
+              margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+              child: Text(
+                'Selected Image: ${file.name}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 50),
+
+          const SizedBox(height: 50), // Adjusted height to make it visible
+          
           Container(
-            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+            margin: const EdgeInsets.only(top: 5.0, left: 0.0), // Adjust the margin to control position
             child: SizedBox(
               width: 120,
-              height: 35,
+              height: 35, // Adjusted height to make it visible
               child: ElevatedButton(
                 onPressed: () async {
-                  if (folderPath != 'No Folder Selected') {
-                    await images.uploadFolder(folderPath);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Folder upload completed')),
-                    );
+                  bool allUploadsSuccessful = true;
+                  if (result != null) {
+                    try{
+                        for(var file in selectedFiles) {
+                          allUploadsSuccessful &= await images.uploadImage(file.name, file.path!);
+                        }
+                    } catch (e) {
+                      allUploadsSuccessful = false;
+                      print('Error uploading image: $e');
+                    }
+                    if(allUploadsSuccessful){
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('All Images uploaded successfully')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to upload image')),
+                      );
+                    }
+
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No folder selected')),
+                      SnackBar(content: Text('No image selected')),
                     );
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1434A4),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0),
+                    borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
                   ),
                 ),
                 child: const Text(
