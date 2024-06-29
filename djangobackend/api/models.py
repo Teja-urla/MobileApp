@@ -1,7 +1,7 @@
 from django.db import models
 
 class User(models.Model):
-    username = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
 
     def __str__(self):
@@ -13,10 +13,3 @@ class Images(models.Model):
 
     def __str__(self):
         return self.image_name
-
-class File(models.Model):
-    file_name = models.CharField(max_length=100)
-    file_url = models.FileField(upload_to="savedFiles/", blank=True)
-
-    def __str__(self):
-        return self.file_name

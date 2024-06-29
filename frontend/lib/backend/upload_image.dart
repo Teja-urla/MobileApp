@@ -35,25 +35,4 @@ class Images {
     }
   }
 
-    Future<void> uploadFolder(String folderPath) async {
-    try {
-      final directory = Directory(folderPath);
-      if (await directory.exists()) {
-        final files = directory.listSync().whereType<File>();
-        for (var file in files) {
-          if (['jpg', 'jpeg', 'png'].contains(file.path.split('.').last.toLowerCase())) {
-            bool result = await uploadImage(file.path.split('/').last, file.path);
-            if (!result) {
-              print('Failed to upload file: ${file.path}');
-            }
-          }
-        }
-      } else {
-        print('Directory does not exist');
-      }
-    } catch (e) {
-      print('Error uploading folder: $e');
-    }
-  }
-
 }

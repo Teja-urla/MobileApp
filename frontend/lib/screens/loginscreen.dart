@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/backend/user_details.dart';
-import 'package:frontend/screens/homepage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/backend/user_details.dart'; // Update with your correct import path
+import 'package:frontend/screens/homepage.dart'; // Update with your correct import path
+
+final storage = FlutterSecureStorage();
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -15,18 +18,22 @@ class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
 
+
   void _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
-    bool isValid1 = await user.login(username, password);
+    String token_returned = await user.login(username, password); // Assuming this method returns the JWT token
 
-    if (isValid1) {
-      // Navigate to home page
-      Navigator.pushReplacement( context,
-        MaterialPageRoute(builder: (context) => HomePage()), // Replace with your home page widget
+    print(token_returned);
+
+    if (token_returned.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(token_returned),
+        ),
       );
     } else {
-      // Display error message
       setState(() {
         _errorMessage = 'Invalid username or password';
       });
@@ -50,7 +57,7 @@ class _LoginscreenState extends State<Loginscreen> {
       ),
       body: SafeArea(
         child: Container(
-          color: const Color(0xFFE5E4E2),
+          color: Color.fromARGB(255, 243, 242, 241),
           child: Column(
             children: [
               Expanded(

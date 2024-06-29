@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 
 class User {
 
-  Future<bool> login(String username, String password) async {
+  Future<String> login(String username, String password) async {
     try {
-      String baseURL = "http://127.0.0.1:8000/users/authenticate/"; 
+      String baseURL = "http://127.0.0.1:8000/users/login/"; 
       var response = await http.post(
         Uri.parse(baseURL),
         headers: <String, String>{
@@ -17,16 +17,40 @@ class User {
           'password': password,
         }),
       );
+      print(response.body);
       if (response.statusCode == 200) {
+        var token_returned = jsonDecode(response.body)['access_token'];
         // Assuming the backend responds with status 200 for valid credentials
-        return true;
+        return token_returned;
       } else {
-        return false;
+        return '';
       }
     } catch (e) {
       print(e);
-      return false;
+      return '';
     }
+  }
+
+  Future<String> UserDetails(String token) async{
+  try {
+    String baseURL = "http://127.0.0.1:8000/users/";
+    var response = await http.get(
+      Uri.parse(baseURL),
+      headers: {
+        'Authorization': '$token', // Include the token in the Authorization header
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var user_details = jsonDecode(response.body);
+      return user_details['username'];
+    } else {
+      return 'Error';
+    }
+  } catch (e) {
+    print(e);
+    return 'Exception';
+  }
   }
 }
 
