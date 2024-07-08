@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/backend/user_details.dart'; // Update with your correct import path
-import 'package:frontend/screens/homepage.dart'; // Update with your correct import path
+import 'package:frontend/screens/projectspage.dart';
 
 final storage = FlutterSecureStorage();
+
+class AppState {
+  static String? token;
+
+  static void setToken(String newToken) {
+    token = newToken;
+  }
+
+  static String? getToken() {
+    return token;
+  }
+}
+
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -14,6 +27,7 @@ class Loginscreen extends StatefulWidget {
 
 class _LoginscreenState extends State<Loginscreen> {
   User user = User();
+  AppState appState = AppState();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
@@ -23,14 +37,16 @@ class _LoginscreenState extends State<Loginscreen> {
     String username = _usernameController.text;
     String password = _passwordController.text;
     String token_returned = await user.login(username, password); // Assuming this method returns the JWT token
-
+    if(token_returned.isNotEmpty){
+      AppState.setToken(token_returned);
+    }
     print(token_returned);
 
     if (token_returned.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(token_returned),
+          builder: (context) => UserProjects(AppState.getToken()!),
         ),
       );
     } else {

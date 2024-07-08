@@ -20,7 +20,6 @@ class User {
       print(response.body);
       if (response.statusCode == 200) {
         var token_returned = jsonDecode(response.body)['access_token'];
-        // Assuming the backend responds with status 200 for valid credentials
         return token_returned;
       } else {
         return '';
@@ -37,7 +36,7 @@ class User {
     var response = await http.get(
       Uri.parse(baseURL),
       headers: {
-        'Authorization': '$token', // Include the token in the Authorization header
+        'Token': '$token', // Include the token in the Authorization header
       },
     );
 

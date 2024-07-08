@@ -6,15 +6,15 @@ import 'package:file_picker/file_picker.dart';
 import 'package:frontend/backend/upload_image.dart';
 import 'package:frontend/backend/user_details.dart';
 
-class HomePage extends StatefulWidget {
+class ImagePage extends StatefulWidget {
   final String token;
-  HomePage(this.token, {super.key});
+  ImagePage(this.token, {super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ImagePage> createState() => _ImagePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ImagePageState extends State<ImagePage> {
   final Images images = Images();
   final User user = User();
 
@@ -38,9 +38,6 @@ class _HomePageState extends State<HomePage> {
         SnackBar(content: Text('Exception Happened!!!')),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Welcome $userDetails')),
-      );
       setState(() {
         username = userDetails;
       });
