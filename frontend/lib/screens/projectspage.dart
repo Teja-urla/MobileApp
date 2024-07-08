@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/loginscreen.dart';
 import 'package:frontend/backend/user_details.dart';
 import 'package:frontend/backend/user_projects.dart';
+import 'package:frontend/screens/newproject.dart';
 
 class UserProjects extends StatefulWidget {
   final String token;
@@ -74,11 +75,37 @@ void _getUserProjects() async {
             },
           ),
         ),
+        body: Column(
+          children: [
+            Container(
+                margin: const EdgeInsets.only(top: 20.0, left: 1000.0),
+                width: 200,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => Newproject(widget.token))
+                    );
+                  },
+                  child: const Text('Create New Project',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255)
+                      )
+                    ),
 
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 20, 164, 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
               for (var i in ProjectsList) // display the project_name and project_description in cards
                 Card(
                   child: Column(
@@ -88,15 +115,13 @@ void _getUserProjects() async {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                           )
-                        )
-                          ,
+                        ),
                         subtitle: Text(i[1]),
                       ),
                     ],
                   ),
                 ),
-            ],
-          ),
+          ],
         )
     );
   }

@@ -68,6 +68,27 @@ class UserProjectList(ViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    @action(detail=False, methods=['post'])
+    def addProject(self, request):
+        token = request.headers.get('Token')
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            user = User.objects.get(id=payload['id'])
+            print(user.id)
+            x = request.data
+            x['userID'] = user.id
+
+            serializer = UserProjectSerializer(data=x)
+
+            if serializer.is_valid():
+                serializer.save(userID=user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
 
 '''
 ::: Image Upload :::
