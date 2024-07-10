@@ -1,0 +1,4 @@
+https://www.youtube.com/watch?v=5Stbte2Npks&t=733s       => connecting flutter with Django.
+https://www.youtube.com/watch?v=BGEEzjGadYI                    => connecting PostgreSQL in flutter.
+https://www.youtube.com/watch?v=Qx5hDC33xQU                 => web Token Authentication.
+https://www.youtube.com/watch?v=d3PGG27qvdM&t=1s          => image/file upload
