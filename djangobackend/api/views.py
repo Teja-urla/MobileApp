@@ -78,6 +78,7 @@ class UserProjectList(ViewSet):
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
             print(user.id)
+            # add userID to the request.data
             x = request.data
             x['userID'] = user.id
 

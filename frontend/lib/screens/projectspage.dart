@@ -106,21 +106,40 @@ void _getUserProjects() async {
 
               const SizedBox(height: 40),
 
-              for (var i in ProjectsList) // display the project_name and project_description in cards
-                Card(
-                  child: Column(
-                    children: <Widget>[
-                      ListTile(
-                        title:Text('Project Name: ' + i[0],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                          )
-                        ),
-                        subtitle: Text(i[1]),
+              for (var i in ProjectsList) 
+                    Container(
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            height: 30,
+                            width: 400,
+                            child: Container (
+                              color: Color(0xff3187A2),
+                               child: Center(
+                                 child: Text(i[0],
+                                 style: TextStyle(
+                                   color: Colors.grey[100],
+                                   fontSize: 20,
+                                 ),
+                                 ),
+                               ),
+                            ),
+                          ),
+                          Container(
+                            color: Colors.grey[100],
+                            width: 400,
+                            child: ListTile(
+                              subtitle: Center(
+                                child: Text(i[1]),
+                              ),
+                            ),
+                          ),
+                          // Empty space
+                          SizedBox(height: 20),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+
           ],
         )
     );
