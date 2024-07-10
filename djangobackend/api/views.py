@@ -78,7 +78,6 @@ class UserProjectList(ViewSet):
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
             print(user.id)
-            # add userID to the request.data
             x = request.data
             x['userID'] = user.id
 
@@ -90,6 +89,62 @@ class UserProjectList(ViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    @action(detail=False, methods=['delete'])
+    def deleteProject(self, request):
+        token = request.headers.get('Token')
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            user = User.objects.get(id=payload['id']) # get the user by id of the user
+            # print(user.id, "user id")
+            project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
+            '''
+                ** IMPORTANT **
+            '''
+            if project.userID.id == user.id: # project.userID.id is the id of the user who created the project, which is foreign key    
+                project.delete()
+                return Response({"message": "Project deleted"}, status=status.HTTP_200_OK)
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except UserProject.DoesNotExist:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except jwt.InvalidTokenError:
+            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['put'])
+    def editProject(self, request):
+        # token = request.headers.get('Token')
+        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzIwNjgyNDQzLCJpYXQiOjE3MjA1OTYwNDN9.LPAMuR8ifVG7HH4OsUCgB1Nu8Enh0ryeumbYlRA2olQ'
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            user = User.objects.get(id=payload['id']) # get the user by id of the user
+            # print(user.id, "user id")
+            project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
+            request.data['userID'] = user.id
+            '''
+                ** IMPORTANT **
+            '''
+            if project.userID.id == user.id: # project.userID.id is the id of the user who created the project, which is foreign key    
+                project.project_name = request.data['project_name']
+                project.project_description = request.data['project_description']
+                project.save()
+                return Response({"message": "Project updated"}, status=status.HTTP_200_OK)
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except UserProject.DoesNotExist:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except jwt.InvalidTokenError:
+            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 '''
 ::: Image Upload :::

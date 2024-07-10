@@ -3,6 +3,7 @@ import 'package:frontend/screens/loginscreen.dart';
 import 'package:frontend/backend/user_details.dart';
 import 'package:frontend/backend/user_projects.dart';
 import 'package:frontend/screens/newproject.dart';
+import 'package:frontend/screens/update_details.dart';
 
 class UserProjects extends StatefulWidget {
   final String token;
@@ -53,6 +54,22 @@ void _getUserProjects() async {
       });
     }
 }
+
+void DelProject(String token, int project_id) async {
+  print("project_id" + project_id.toString());
+    int statusCode = await userProjects.DeleteProject(token, project_id);
+    if (statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Project Deleted Successfully')),
+        // Refresh the page
+      );
+      _getUserProjects();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error Deleting Project')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,19 +127,21 @@ void _getUserProjects() async {
                     Container(
                       child: Column(
                         children: <Widget>[
-                          SizedBox(
-                            height: 30,
-                            width: 400,
-                            child: Container (
-                              color: Color(0xff3187A2),
-                               child: Center(
-                                 child: Text(i[0],
-                                 style: TextStyle(
-                                   color: Colors.grey[100],
-                                   fontSize: 20,
+                          Container(
+                            child: SizedBox(
+                              height: 30,
+                              width: 400,
+                              child: Container (
+                                color: Color(0xff3187A2),
+                                 child: Center(
+                                   child: Text(i[0],
+                                   style: TextStyle(
+                                     color: Colors.grey[100],
+                                     fontSize: 20,
+                                   ),
+                                   ),
                                  ),
-                                 ),
-                               ),
+                              ),
                             ),
                           ),
                           Container(
@@ -132,6 +151,25 @@ void _getUserProjects() async {
                               subtitle: Center(
                                 child: Text(i[1]),
                               ),
+
+                              // icon of delete
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  DelProject(widget.token, i[2]);
+                                },
+                              ),
+
+                              // icon of edit
+                              leading: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.pushReplacement(context,
+                                  MaterialPageRoute(builder: (context) => UpdateProject(widget.token, i[2]))
+                                  );
+                                },
+                              ),
+
                             ),
                           ),
                           // Empty space

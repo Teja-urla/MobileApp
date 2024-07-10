@@ -11,7 +11,7 @@ urlpatterns = [
 
     path('users/', UserView.as_view({'get': 'list'}), name='user-list'),
 
-    path('projects/', UserProjectList.as_view({'get': 'projectList', 'post' : 'addProject' }), name='project-list'),
+    path('projects/', UserProjectList.as_view({'get': 'projectList', 'post' : 'addProject', 'put' : 'editProject', 'delete' : 'deleteProject' }), name='project-list'),
 
     path('images/', ImagesList.as_view({'post': 'uploadImage'}), name='image-list'),
 

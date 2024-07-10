@@ -18,7 +18,7 @@ class UserCreatedProjects{
         List user_projects = [];
         // put the project_name and project_description in a list
         for (var i in user_details){
-          user_projects.add([i['project_name'], i['project_description']]);
+          user_projects.add([i['project_name'], i['project_description'], i['id']]);
         }
 
         return user_projects;
@@ -31,4 +31,50 @@ class UserCreatedProjects{
     }
   }
 
+  Future<int> DeleteProject(String token, int project_id) async{
+    try {
+      String baseURL = "http://127.0.0.1:8000/projects/";
+      var response = await http.delete(
+        Uri.parse(baseURL),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Token' : '$token',
+        },
+        body: 
+          jsonEncode(<String, int>{
+            'id': project_id,
+          }),
+      );
+      print(response.statusCode);
+      return response.statusCode;
+    } 
+    catch (e) {
+      print(e);
+      return 500;
+    }
+  }
+
+  Future<int> UpdateProject(String token, int project_id, String project_name, String project_desc) async {
+    try{
+      String baseURL = "http://127.0.0.1:8000/projects/";
+      var response = await http.put(
+        Uri.parse(baseURL),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Token' : '$token',
+        },
+        body: 
+          jsonEncode(<String, dynamic>{
+            'id': project_id,
+            'project_name': project_name,
+            'project_description': project_desc,
+          }),
+      );
+
+      return response.statusCode;
+    } catch(e) {
+      print(e);
+      return 500;
+    }
+  }
 }
