@@ -6,7 +6,7 @@ class User {
 
   Future<String> login(String username, String password) async {
     try {
-      String baseURL = "http://127.0.0.1:8000/users/login/"; 
+      String baseURL = "https://127.0.0.1:8000/users/login/"; 
       var response = await http.post(
         Uri.parse(baseURL),
         headers: <String, String>{
@@ -17,7 +17,7 @@ class User {
           'password': password,
         }),
       );
-      print(response.body);
+      
       if (response.statusCode == 200) {
         var token_returned = jsonDecode(response.body)['access_token'];
         return token_returned;
@@ -32,7 +32,7 @@ class User {
 
   Future<String> UserDetails(String token) async{
   try {
-    String baseURL = "http://127.0.0.1:8000/users/";
+    String baseURL = "https://127.0.0.1:8000/users/";
     var response = await http.get(
       Uri.parse(baseURL),
       headers: {

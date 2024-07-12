@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-b@!2r%5^fow%m#(pyt(e^8$zm4i-6i0c_zby@hburp1gccdjrr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    "django_extensions",
+    "sslserver",
 ]
 
 MIDDLEWARE = [
@@ -140,3 +142,4 @@ import os
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+

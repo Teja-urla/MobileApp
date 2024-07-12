@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:io';
 
 class Images {
-  final String baseURL = "http://127.0.0.1:8000/images/";
+  final String baseURL = "https://127.0.0.1:8000/images/";
 
   Future<bool> uploadImage(String imageName, String imageURL) async {
     try {
