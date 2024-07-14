@@ -20,6 +20,7 @@ class User {
       
       if (response.statusCode == 200) {
         var token_returned = jsonDecode(response.body)['access_token'];
+        print(token_returned);
         return token_returned;
       } else {
         return '';

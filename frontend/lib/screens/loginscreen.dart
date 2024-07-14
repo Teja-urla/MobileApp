@@ -33,16 +33,16 @@ class _LoginscreenState extends State<Loginscreen> {
   String _errorMessage = '';
 
 
-  void _login() async {
-    String username = _usernameController.text;
-    String password = _passwordController.text;
-    String token_returned = await user.login(username, password); // Assuming this method returns the JWT token
-    if(token_returned.isNotEmpty){
-      AppState.setToken(token_returned);
-    }
-    print(token_returned);
+void _login() async {
+  String username = _usernameController.text;
+  String password = _passwordController.text;
 
-    if (token_returned.isNotEmpty) {
+  try {
+    String tokenReturned = await user.login(username, password); // Assuming this method returns the JWT token
+
+    if (tokenReturned.isNotEmpty) {
+      AppState.setToken(tokenReturned);
+
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -54,7 +54,13 @@ class _LoginscreenState extends State<Loginscreen> {
         _errorMessage = 'Invalid username or password';
       });
     }
+  } catch (e) {
+    print('Login error: $e');
+    setState(() {
+      _errorMessage = 'Error during login';
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {

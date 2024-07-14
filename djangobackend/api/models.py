@@ -1,14 +1,10 @@
+# models.py
+
 from django.db import models
-
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.username
+from django.contrib.auth.models import User
 
 class UserProject(models.Model):
-    userID = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)  # using `user` instead of `userID`
     project_name = models.CharField(max_length=100)
     project_description = models.TextField()
 

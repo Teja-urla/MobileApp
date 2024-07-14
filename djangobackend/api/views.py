@@ -2,43 +2,42 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
-from .models import User, Images, UserProject
-from .serializers import LoginSerializer, ImageSerializer, UserProjectSerializer
+from .models import Images, UserProject
+from .serializers import ImageSerializer, UserProjectSerializer
 import jwt, datetime
 from rest_framework.authentication import TokenAuthentication
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+
 '''
 ::: User Authentication :::
 '''
+
 class LoginView(ViewSet):
     @action(detail=False, methods=['post'])
     def login(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-            try:
-                user = User.objects.get(username=username, password=password)
-                payload = {
-                    'id': user.id,
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
-                    'iat': datetime.datetime.utcnow()
-                }
-                token = jwt.encode(payload, 'SECRET', algorithm='HS256')
-                response = Response({"message": "Login successful", "access_token": token}, status=status.HTTP_200_OK)
-                return response
-            except User.DoesNotExist:
-                return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        username = request.data['username']
+        password = request.data['password']
+        user = authenticate(username=username, password=password) # authenticate the user of the given username and password in the table of users in the database
+        if user is not None:
+            payload = {
+                'id': user.id,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+            }
+            token = jwt.encode(payload, 'SECRET', algorithm='HS256')
+            return Response({"access_token": token}, status=status.HTTP_200_OK)
+        return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-class UserView(ViewSet): # access the details of user after login
+# access the details of user after login
+class UserView(ViewSet):
     @action(detail=False, methods=['get'])
-    def list(self, request): 
+    def list(self, request):
         token = request.headers.get('Token')
-        print('token python: ', token)
         if not token:
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
-            user = User.objects.get(id=payload['id']) # only sending id and username
+            user = User.objects.get(id=payload['id'])
             return Response({"id": user.id, "username": user.username}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -46,6 +45,7 @@ class UserView(ViewSet): # access the details of user after login
             return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
         except User.DoesNotExist:
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 '''
 ::: User Projects :::
@@ -61,8 +61,8 @@ class UserProjectList(ViewSet):
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
             print(user.id)
-            # get all the projects where userID = user.id
-            projects = UserProject.objects.filter(userID=user.id) # get all the projects where userID = user.id
+            # get all the projects where user_id = user.id
+            projects = UserProject.objects.filter(user_id=user.id) # get all the projects where user_id = user.id
             serializer = UserProjectSerializer(projects, many=True)
             print(projects)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -79,12 +79,12 @@ class UserProjectList(ViewSet):
             user = User.objects.get(id=payload['id'])
             print(user.id)
             x = request.data
-            x['userID'] = user.id
+            x['user_id'] = user.id
 
             serializer = UserProjectSerializer(data=x)
 
             if serializer.is_valid():
-                serializer.save(userID=user)
+                serializer.save(user_id=user)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except jwt.ExpiredSignatureError:
@@ -103,7 +103,7 @@ class UserProjectList(ViewSet):
             '''
                 ** IMPORTANT **
             '''
-            if project.userID.id == user.id: # project.userID.id is the id of the user who created the project, which is foreign key    
+            if project.user_id.id == user.id: # project.user_id.id is the id of the user who created the project, which is foreign key    
                 project.delete()
                 return Response({"message": "Project deleted"}, status=status.HTTP_200_OK)
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -127,11 +127,11 @@ class UserProjectList(ViewSet):
             user = User.objects.get(id=payload['id']) # get the user by id of the user
             # print(user.id, "user id")
             project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
-            request.data['userID'] = user.id
+            request.data['user_id'] = user.id
             '''
                 ** IMPORTANT **
             '''
-            if project.userID.id == user.id: # project.userID.id is the id of the user who created the project, which is foreign key    
+            if project.user_id.id == user.id: # project.user_id.id is the id of the user who created the project, which is foreign key    
                 project.project_name = request.data['project_name']
                 project.project_description = request.data['project_description']
                 project.save()
