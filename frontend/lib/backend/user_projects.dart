@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class UserCreatedProjects{
   Future<List>  UserProjectslist(String token) async{
     try {
-      String baseURL = "https://127.0.0.1:8000/projects/";
+      String baseURL = "https://127.0.0.1:8000/projects/"; // Secure communication
       var response = await http.get(
         Uri.parse(baseURL),
         headers: {
@@ -33,7 +33,7 @@ class UserCreatedProjects{
 
   Future<int> DeleteProject(String token, int project_id) async{
     try {
-      String baseURL = "https://127.0.0.1:8000/projects/";
+      String baseURL = "https://127.0.0.1:8000/projects/";   // Secure communication
       var response = await http.delete(
         Uri.parse(baseURL),
         headers: {
@@ -55,7 +55,7 @@ class UserCreatedProjects{
 
   Future<int> UpdateProject(String token, int project_id, String project_name, String project_desc) async {
     try{
-      String baseURL = "https://127.0.0.1:8000/projects/";
+      String baseURL = "https://127.0.0.1:8000/projects/";  // Secure communication
       var response = await http.put(
         Uri.parse(baseURL),
         headers: {

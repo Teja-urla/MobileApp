@@ -39,6 +39,30 @@ void _login() async {
   String username = _usernameController.text;
   String password = _passwordController.text;
 
+  if(username.isEmpty || password.isEmpty) {
+    setState(() {
+      _errorMessage = 'Please enter both username and password';
+    });
+    return;
+  }
+  
+  /*
+      OWASP top-10 => Input Validation and Representation
+  */
+  // if username contains any untrusted characters, return an error 
+  if (username.contains(new RegExp(r'[^\w]'))) {
+    setState(() {
+      _errorMessage = 'Invalid username';
+    });
+    return;
+  }
+  if(username.length > 150) {
+    setState(() {
+      _errorMessage = 'Username too long';
+    });      
+    return;
+  }
+
   try {
     String tokenReturned = await user.login(username, password); // Assuming this method returns the JWT token
 
@@ -54,7 +78,7 @@ void _login() async {
       );
     } else {
       setState(() {
-        _errorMessage = 'Invalid username or password';
+        _errorMessage = 'Invalid username or password. Please enter correctly';
       });
     }
   } catch (e) {

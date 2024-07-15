@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class UploadProject{
    Future<int> uploadProject(String token, String project_name, String project_description) async{
     try {
-      String baseURL = "https://127.0.0.1:8000/projects/";
+      String baseURL = "https://127.0.0.1:8000/projects/";  // Secure communication
       var response = await http.post(
          Uri.parse(baseURL),
          headers: {
