@@ -8,6 +8,7 @@ import jwt, datetime
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from urllib.parse import quote
 
 '''
 ::: User Authentication :::
@@ -18,6 +19,13 @@ class LoginView(ViewSet):
     def login(self, request):
         username = request.data['username']
         password = request.data['password']
+        '''
+           OWASP Top 10 - 2017 Output Encoding
+        '''
+        # perform output encoding
+        username = quote(username)
+        password = quote(password)
+
         user = authenticate(username=username, password=password) # authenticate the user of the given username and password in the table of users in the database
         if user is not None:
             payload = {
@@ -77,9 +85,15 @@ class UserProjectList(ViewSet):
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            print(user.id)
             x = request.data
             x['user_id'] = user.id
+
+            '''
+                OWASP Top 10 - 2017 Output Encoding
+            '''
+            # perform output encoding on x
+            x['project_name'] = quote(x['project_name'])
+            x['project_description'] = quote(x['project_description'])
 
             serializer = UserProjectSerializer(data=x)
 
@@ -98,7 +112,7 @@ class UserProjectList(ViewSet):
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id']) # get the user by id of the user
-            # print(user.id, "user id")
+
             project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
             '''
                 ** IMPORTANT **
@@ -127,6 +141,13 @@ class UserProjectList(ViewSet):
             # print(user.id, "user id")
             project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
             request.data['user_id'] = user.id
+            '''
+                OWASP Top 10 - 2017 Output Encoding
+            '''
+            # perform output encoding on request.data
+            request.data['project_name'] = quote(request.data['project_name'])
+            request.data['project_description'] = quote(request.data['project_description'])
+            
             '''
                 ** IMPORTANT **
             '''

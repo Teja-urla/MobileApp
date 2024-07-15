@@ -5,3 +5,6 @@ https://www.youtube.com/watch?v=d3PGG27qvdM&t=1s          => image/file upload
 
 /* For Secure Connection i.e https api instead http */
 Ref:- https://timonweb.com/django/https-django-development-server-ssl-certificate/
+
+/* Security Testing (Basics) - Input Validation and Output Encoding */
+Ref:- https://www.youtube.com/watch?v=3edRWIScJTA
