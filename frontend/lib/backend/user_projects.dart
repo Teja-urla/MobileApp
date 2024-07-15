@@ -14,7 +14,7 @@ class UserCreatedProjects{
       );
       if(response.statusCode == 200){
         var user_details = jsonDecode(response.body);
-        print(user_details);
+        // print(user_details);
         List user_projects = [];
         // put the project_name and project_description in a list
         for (var i in user_details){

@@ -118,8 +118,7 @@ class UserProjectList(ViewSet):
     
     @action(detail=False, methods=['put'])
     def editProject(self, request):
-        # token = request.headers.get('Token')
-        token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzIwNjgyNDQzLCJpYXQiOjE3MjA1OTYwNDN9.LPAMuR8ifVG7HH4OsUCgB1Nu8Enh0ryeumbYlRA2olQ'
+        token = request.headers.get('Token')
         if not token:
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         try:

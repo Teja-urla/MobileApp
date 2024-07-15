@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class UserProject(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)  # using `user` instead of `userID`
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)  # user_id is a foreign key to the User model
     project_name = models.CharField(max_length=100)
     project_description = models.TextField()
 

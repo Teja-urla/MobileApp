@@ -3,17 +3,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/backend/user_details.dart'; // Update with your correct import path
 import 'package:frontend/screens/projectspage.dart';
 
+/* Storing the token in FlutterSecureStorage so that 
+   even if any one gets access to the device, they won't be able to read without proper decryption key 
+ */
 final storage = FlutterSecureStorage();
 
 class AppState {
-  static String? token;
-
-  static void setToken(String newToken) {
-    token = newToken;
+  static Future<void> setToken(String newToken) async {
+    await storage.write(key: 'access_token', value: newToken);
   }
 
-  static String? getToken() {
-    return token;
+  static Future<String?> getToken() async { // Return type changed to Future<String?>
+    String? accessToken = await storage.read(key: 'access_token');
+    return accessToken; // Type cast to String?
   }
 }
 
@@ -41,12 +43,13 @@ void _login() async {
     String tokenReturned = await user.login(username, password); // Assuming this method returns the JWT token
 
     if (tokenReturned.isNotEmpty) {
-      AppState.setToken(tokenReturned);
+     await AppState.setToken(tokenReturned);
+     String? token = await AppState.getToken()!;
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => UserProjects(AppState.getToken()!),
+          builder: (context) => UserProjects(token!),
         ),
       );
     } else {
