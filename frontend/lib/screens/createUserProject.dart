@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:frontend/backend/upload_project.dart';
 import 'package:frontend/screens/projectspage.dart';
 
-class Newproject extends StatefulWidget {
+class createUserProject extends StatefulWidget {
   final String token;
-  const Newproject(this.token, {super.key});
+  const createUserProject(this.token, {super.key});
 
   @override
-  State<Newproject> createState() => _NewprojectState();
+  State<createUserProject> createState() => _createUserProjectState();
 }
 
-class _NewprojectState extends State<Newproject> {
-  UploadProject project_upload = UploadProject();
+class _createUserProjectState extends State<createUserProject> {
+  UploadCreatedProject project_upload = UploadCreatedProject();
   final TextEditingController _projectNameController = TextEditingController();
   final TextEditingController _projectDescriptionController = TextEditingController();
 

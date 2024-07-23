@@ -30,7 +30,7 @@ class LoginView(ViewSet):
         if user is not None:
             payload = {
                 'id': user.id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
             token = jwt.encode(payload, 'SECRET', algorithm='HS256')
             return Response({"access_token": token}, status=status.HTTP_200_OK)
@@ -39,7 +39,7 @@ class LoginView(ViewSet):
 # access the details of user after login
 class UserView(ViewSet):
     @action(detail=False, methods=['get'])
-    def list(self, request):
+    def userDetails(self, request):
         token = request.headers.get('Token')
         if not token:
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -68,11 +68,9 @@ class UserProjectList(ViewSet):
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            print(user.id)
             # get all the projects where user_id = user.id
             projects = UserProject.objects.filter(user_id=user.id) # get all the projects where user_id = user.id
             serializer = UserProjectSerializer(projects, many=True)
-            print(projects)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -85,20 +83,19 @@ class UserProjectList(ViewSet):
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
-            x = request.data
-            x['user_id'] = user.id
+            request.data['user_id'] = user.id # set the user_id of the project to the id of the user who created the project using the token
 
             '''
                 OWASP Top 10 - 2017 Output Encoding
             '''
             # perform output encoding on x
-            x['project_name'] = quote(x['project_name'])
-            x['project_description'] = quote(x['project_description'])
+            request.data['project_name'] = quote(request.data['project_name']) # quote function is used to perform output encoding
+            request.data['project_description'] = quote(request.data['project_description'])
 
-            serializer = UserProjectSerializer(data=x)
+            serializer = UserProjectSerializer(data=request.data)
 
             if serializer.is_valid():
-                serializer.save(user_id=user)
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except jwt.ExpiredSignatureError:

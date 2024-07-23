@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/login/', LoginView.as_view({'post': 'login'}), name='user-login'),
 
-    path('users/', UserView.as_view({'get': 'list'}), name='user-list'),
+    path('users/', UserView.as_view({'get': 'userDetails'}), name='user-details'),
 
     path('projects/', UserProjectList.as_view({'get': 'projectList', 'post' : 'addProject', 'put' : 'editProject', 'delete' : 'deleteProject' }), name='project-list'),
 

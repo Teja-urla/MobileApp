@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/loginscreen.dart';
 import 'package:frontend/backend/user_details.dart';
 import 'package:frontend/backend/user_projects.dart';
-import 'package:frontend/screens/newproject.dart';
+import 'package:frontend/screens/createUserProject.dart';
 import 'package:frontend/screens/update_details.dart';
 
 class UserProjects extends StatefulWidget {
@@ -15,9 +15,9 @@ class UserProjects extends StatefulWidget {
 
 class _UserProjectsState extends State<UserProjects> {
   User user = User();
-  final UserCreatedProjects userProjects = UserCreatedProjects();
+  final UserCreatedProjects userProjects = UserCreatedProjects(); // projects created by user
   String username = '';
-  List ProjectsList = [];
+  List userCreatedProjectsList = [];
 
   @override
   void initState() {
@@ -41,21 +41,21 @@ class _UserProjectsState extends State<UserProjects> {
   }
 
 void _getUserProjects() async {
-    List userProjectsList = await userProjects.UserProjectslist(widget.token);
+    List userCreatedProjects = await userProjects.UserProjectslist(widget.token);
 
-    if (userProjectsList.isEmpty) {
+    if (userCreatedProjects.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('No Projects Found!!!')),
       );
     } else {
-      print(userProjectsList);
+      print(userCreatedProjects);
       setState(() {
-        ProjectsList = userProjectsList;
+        userCreatedProjectsList = userCreatedProjects;
       });
     }
 }
 
-void DelProject(String token, int project_id) async {
+void _deleteProject(String token, int project_id) async {
   print("project_id" + project_id.toString());
     int statusCode = await userProjects.DeleteProject(token, project_id);
     if (statusCode == 200) {
@@ -92,94 +92,97 @@ void DelProject(String token, int project_id) async {
             },
           ),
         ),
-        body: Column(
-          children: [
-            Container(
-                margin: const EdgeInsets.only(top: 20.0, left: 1000.0),
-                width: 200,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => Newproject(widget.token))
-                    );
-                  },
-                  child: const Text('Create New Project',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 255, 255, 255)
-                      )
-                    ),
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 20, 164, 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
-                    ),
-                  ),
+      body: Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 1000.0),
+          width: 200,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => createUserProject(widget.token),
                 ),
+              );
+            },
+            child: const Text(
+              'Create New Project',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 255, 255, 255),
               ),
-
-              const SizedBox(height: 40),
-
-              for (var i in ProjectsList) 
-                    Container(
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            child: SizedBox(
-                              height: 30,
-                              width: 400,
-                              child: Container (
-                                color: Color(0xff3187A2),
-                                 child: Center(
-                                   child: Text(i[0],
-                                   style: TextStyle(
-                                     color: Colors.grey[100],
-                                     fontSize: 20,
-                                   ),
-                                   ),
-                                 ),
-                              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color.fromARGB(255, 20, 164, 20),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+        Expanded(
+          child: ListView.builder( // Using ListView.builder instead of simple for loop prevents overflow error
+            itemCount: userCreatedProjectsList.length,
+            itemBuilder: (context, index) {
+              var i = userCreatedProjectsList[index];
+              return Column(
+                children: <Widget>[
+                  Container(
+                    child: SizedBox(
+                      height: 30,
+                      width: 400,
+                      child: Container(
+                        color: Color(0xff3187A2),
+                        child: Center(
+                          child: Text(
+                            i[0],
+                            style: TextStyle(
+                              color: Colors.grey[100],
+                              fontSize: 20,
                             ),
                           ),
-                          Container(
-                            color: Colors.grey[100],
-                            width: 400,
-                            child: ListTile(
-                              subtitle: Center(
-                                child: Text(i[1]),
-                              ),
-
-                              // icon of delete
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  DelProject(widget.token, i[2]);
-                                },
-                              ),
-
-                              // icon of edit
-                              leading: IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  Navigator.pushReplacement(context,
-                                  MaterialPageRoute(builder: (context) => UpdateProject(widget.token, i[2]))
-                                  );
-                                },
-                              ),
-
-                            ),
-                          ),
-                          // Empty space
-                          SizedBox(height: 20),
-                        ],
+                        ),
                       ),
                     ),
-
-          ],
-        )
+                  ),
+                  Container(
+                    color: Colors.grey[100],
+                    width: 400,
+                    child: ListTile(
+                      subtitle: Center(
+                        child: Text(i[1]),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          _deleteProject(widget.token, i[2]);
+                        },
+                      ),
+                      leading: IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => UpdateProject(widget.token, i[2]),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              );
+            },
+          ),
+        ),
+      ],
+     ),
     );
   }
 }
