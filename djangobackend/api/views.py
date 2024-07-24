@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
-from .models import Images, UserProject
-from .serializers import ImageSerializer, UserProjectSerializer
+from .models import Images, UserProject, ProjectImages
+from .serializers import ImageSerializer, UserProjectSerializer, ProjectImageSerializer
 import jwt, datetime
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
@@ -25,7 +25,7 @@ class LoginView(ViewSet):
         # perform output encoding
         username = quote(username)
         password = quote(password)
-
+        # print(username, password)
         user = authenticate(username=username, password=password) # authenticate the user of the given username and password in the table of users in the database
         if user is not None:
             payload = {
@@ -33,6 +33,7 @@ class LoginView(ViewSet):
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)
             }
             token = jwt.encode(payload, 'SECRET', algorithm='HS256')
+            print(token)
             return Response({"access_token": token}, status=status.HTTP_200_OK)
         return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -175,4 +176,70 @@ class ImagesList(ViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-       
+
+
+'''
+::: Project Images :::
+'''
+
+class ProjectImageList(ViewSet):
+    @action(detail=False, methods=['post'])
+    def projectImagesList(self, request):
+        token = request.headers.get('Token')
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            projectID = request.data['project_id']
+            # print(projectID, "project id")
+            project_images = ProjectImages.objects.filter(project_id=projectID)
+
+            # project_images = ProjectImages.objects.filter(project_id=14)
+
+
+            serializer = ProjectImageSerializer(project_images, many=True)
+            # print(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except ProjectImages.DoesNotExist:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class ProjectImageUpload(ViewSet):
+    @action(detail=False, methods=['post'])
+    def projectImageUpload(self, request):
+
+        token = request.headers.get('Token')
+        print(token)
+        # token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzIxODk5ODcyfQ.FiJAFwxE8yJT0jpCkQ6l9_m_KZS8Pl0w7SKe5-LEHXQ'
+
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            user = User.objects.get(id=payload['id'])
+            request.data['user_id'] = user.id
+            project_id = request.data['project_id']
+            # convert project_id to integer
+            project_id = int(project_id)
+            request.data['project_id'] = project_id
+            print('*******')
+            print(request.data)
+            print('*******')
+            serializer = ProjectImageSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except jwt.InvalidTokenError:
+            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except ProjectImages.DoesNotExist:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)

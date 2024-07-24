@@ -17,3 +17,12 @@ class Images(models.Model):
 
     def __str__(self):
         return self.image_name
+
+class ProjectImages(models.Model):
+    # user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    project_id = models.ForeignKey(UserProject, on_delete=models.CASCADE)
+    image_name = models.CharField(max_length=100)
+    image_url = models.ImageField(upload_to="savedImages/", blank=True)
+
+    def __str__(self):
+        return self.image_name

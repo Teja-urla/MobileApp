@@ -2,5 +2,5 @@ python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 
 git init
 git add .
-git commit -m "Implemented OWASP Except 10th"
+git commit -m "Upload images in project"
 git push origin main

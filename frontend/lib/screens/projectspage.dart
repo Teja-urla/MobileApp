@@ -4,6 +4,7 @@ import 'package:frontend/backend/user_details.dart';
 import 'package:frontend/backend/user_projects.dart';
 import 'package:frontend/screens/createUserProject.dart';
 import 'package:frontend/screens/update_details.dart';
+import 'package:frontend/screens/projectImages.dart';
 
 class UserProjects extends StatefulWidget {
   final String token;
@@ -135,17 +136,29 @@ void _deleteProject(String token, int project_id) async {
                     child: SizedBox(
                       height: 30,
                       width: 400,
-                      child: Container(
-                        color: Color(0xff3187A2),
-                        child: Center(
-                          child: Text(
-                            i[0],
-                            style: TextStyle(
-                              color: Colors.grey[100],
-                              fontSize: 20,
+                      child: 
+                      GestureDetector( /* This is for onTap functionality */
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Projectimages(i[2], widget.token, i[0]), // project id
                             ),
-                          ),
-                        ),
+                          );
+                        },
+                        
+                        child: Container(
+                                color: Color(0xff3187A2),
+                                child: Center(
+                                  child: Text(
+                                    i[0], // project name
+                                    style: TextStyle(
+                                      color: Colors.grey[100],
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -154,12 +167,12 @@ void _deleteProject(String token, int project_id) async {
                     width: 400,
                     child: ListTile(
                       subtitle: Center(
-                        child: Text(i[1]),
+                        child: Text(i[1]), // project description
                       ),
                       trailing: IconButton(
                         icon: Icon(Icons.delete),
                         onPressed: () {
-                          _deleteProject(widget.token, i[2]);
+                          _deleteProject(widget.token, i[2]); // i[2] is project id
                         },
                       ),
                       leading: IconButton(
