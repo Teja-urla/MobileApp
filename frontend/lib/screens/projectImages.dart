@@ -18,8 +18,10 @@ class _ProjectimagesState extends State<Projectimages> {
   List projectImagesList = [];
   FilePickerResult? result;
   List<PlatformFile> selectedFiles = [];
+  int set_number = 1;
+
   _getProjectImages() async{
-    List projectImages = await uploadImagesProject.ProjectImages(widget.token, widget.project_id);
+    List projectImages = await uploadImagesProject.ProjectImages(widget.token, widget.project_id, set_number);
 
     if (projectImages.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -130,53 +132,105 @@ class _ProjectimagesState extends State<Projectimages> {
           
           Container(
             margin: const EdgeInsets.only(top: 5.0, left: 0.0), // Adjust the margin to control position
-            child: SizedBox(
-              width: 120,
-              height: 35, // Adjusted height to make it visible
-              child: ElevatedButton(
-                onPressed: () async {
-                  bool allUploadsSuccessful = true;
-                  if (result != null) {
-                    try{
-                        for(var file in selectedFiles) {
-                          allUploadsSuccessful &= await uploadImagesProject.uploadImages(widget.token, widget.project_id, file.name, file.path!);
+            child: Column(
+              children: [
+                SizedBox(
+                  width: 120,
+                  height: 35, // Adjusted height to make it visible
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      bool allUploadsSuccessful = true;
+                      if (result != null) {
+                        try{
+                            for(var file in selectedFiles) {
+                              allUploadsSuccessful &= await uploadImagesProject.uploadImages(widget.token, widget.project_id, file.name, file.path!);
+                            }
+                        } catch (e) {
+                          allUploadsSuccessful = false;
+                          print('Error uploading image: $e');
                         }
-                    } catch (e) {
-                      allUploadsSuccessful = false;
-                      print('Error uploading image: $e');
-                    }
-                    if(allUploadsSuccessful){
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('All Images uploaded successfully')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to upload image')),
-                      );
-                    }
+                        if(allUploadsSuccessful){
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('All Images uploaded successfully')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to upload image')),
+                          );
+                        }
+                
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('No image selected')),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1434A4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
+                      ),
+                    ),
+                    child: const Text(
+                      'Upload',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                
+                ),
 
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('No image selected')),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1434A4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0), // Set the border radius to 0 for rectangular shape
-                  ),
-                ),
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+                const SizedBox(height: 20),
+              ],
             ),
           ),
+
+          const SizedBox(height: 20),
+
+          Container(
+             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                      IconButton(
+                      icon: Icon(Icons.arrow_left),
+                      onPressed: () {
+                        setState(() {
+                          set_number = set_number - 1;
+                        });
+                        _getProjectImages();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_right),
+                      onPressed: () {
+                        setState(() {
+                          (set_number = set_number + 1);
+                        });
+                        _getProjectImages();
+                      },
+                    ),
+               ],
+             ),
+          ),
+          
+          Expanded(
+                  child: ListView.builder(
+                    itemCount: projectImagesList.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+                        child: Image.network(
+                          'https://127.0.0.1:8000'+ projectImagesList[index]['image_url'],
+                          // 'https://127.0.0.1:8000/media/savedImages/feature-2-585x390_WnFAR5T.jpg',
+                          width: 200,
+                          height: 200,
+                        ),
+                      );
+                    },
+                  ),
+          )
         ],
       ),
     );

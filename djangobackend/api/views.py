@@ -9,6 +9,9 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from urllib.parse import quote
+# import pageination
+# from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 '''
 ::: User Authentication :::
@@ -186,20 +189,33 @@ class ProjectImageList(ViewSet):
     @action(detail=False, methods=['post'])
     def projectImagesList(self, request):
         token = request.headers.get('Token')
+
         if not token:
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             projectID = request.data['project_id']
-            # print(projectID, "project id")
+            set_number = request.data['set_num']
+
             project_images = ProjectImages.objects.filter(project_id=projectID)
+            total_number_of_images = len(project_images)
+            total_number_of_images = total_number_of_images // 3 + 1
+            set_number = set_number % total_number_of_images
 
             # project_images = ProjectImages.objects.filter(project_id=14)
 
+            page = request.GET.get('page', set_number) # get the page number from the query parameter
+            paginator = Paginator(project_images, 3) # show 2 images per page
+            try:
+                project_images = paginator.page(page)
+            except PageNotAnInteger:
+                project_images = paginator.page(set_number)
+            except EmptyPage:
+                project_images = paginator.page(paginator.num_pages) # num_pages is the total number of pages
 
             serializer = ProjectImageSerializer(project_images, many=True)
-            # print(serializer.data)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
@@ -214,8 +230,6 @@ class ProjectImageUpload(ViewSet):
     def projectImageUpload(self, request):
 
         token = request.headers.get('Token')
-        print(token)
-        # token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzIxODk5ODcyfQ.FiJAFwxE8yJT0jpCkQ6l9_m_KZS8Pl0w7SKe5-LEHXQ'
 
         if not token:
             return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -223,13 +237,7 @@ class ProjectImageUpload(ViewSet):
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id'])
             request.data['user_id'] = user.id
-            project_id = request.data['project_id']
-            # convert project_id to integer
-            project_id = int(project_id)
-            request.data['project_id'] = project_id
-            print('*******')
-            print(request.data)
-            print('*******')
+            request.data['project_id'] = int(request.data['project_id']) # convert the project_id to integer, In the frontend, the project_id is sent as string
             serializer = ProjectImageSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()

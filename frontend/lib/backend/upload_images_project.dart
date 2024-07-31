@@ -4,7 +4,7 @@ import 'dart:io';
 
 class UploadImagesProject {
   
-  Future<List> ProjectImages(String token, int project_id) async {
+  Future<List> ProjectImages(String token, int project_id, int set_number) async {
     final String baseURL = "https://127.0.0.1:8000/project-images/";
     try {
       print("PROJECT ID : **** " + project_id.toString());
@@ -14,14 +14,16 @@ class UploadImagesProject {
         headers: {
           'Content-Type': 'application/json; charset=UTF-8',
           'Token': '$token',
+          // 'set_num': set_number.toString(),
         },
         body: jsonEncode(
           {
             'project_id': project_id,
+            'set_num': set_number,
           },
         ),
       );
-
+      print(set_number);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         List projectImages = [];
