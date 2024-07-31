@@ -9,8 +9,6 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from urllib.parse import quote
-# import pageination
-# from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 '''
@@ -57,7 +55,6 @@ class UserView(ViewSet):
             return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
         except User.DoesNotExist:
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
 
 '''
 ::: User Projects :::
@@ -204,6 +201,10 @@ class ProjectImageList(ViewSet):
 
             # project_images = ProjectImages.objects.filter(project_id=14)
 
+            '''
+                PAGINATION
+            '''
+            
             page = request.GET.get('page', set_number) # get the page number from the query parameter
             paginator = Paginator(project_images, 3) # show 2 images per page
             try:
