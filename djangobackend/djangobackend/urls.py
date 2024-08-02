@@ -3,10 +3,13 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.urlpatterns import format_suffix_patterns
-from api.views import ImagesList, LoginView, UserView, UserProjectList, ProjectImageList, ProjectImageUpload
+from api.views import ImagesList, LoginView, UserView, UserProjectList, ProjectImageList, ProjectImageUpload, test_cors
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('test-cors/', test_cors, name='test_cors'), # for testing CORS
+
     path('users/login/', LoginView.as_view({'post': 'login'}), name='user-login'),
 
     path('users/', UserView.as_view({'get': 'userDetails'}), name='user-details'),

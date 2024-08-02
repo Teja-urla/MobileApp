@@ -10,6 +10,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from urllib.parse import quote
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from rest_framework.decorators import api_view
+
+@api_view(['GET'])
+def test_cors(request):
+    return Response({"message": "CORS is working!"})
 
 '''
 ::: User Authentication :::
