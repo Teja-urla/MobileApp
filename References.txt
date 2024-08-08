@@ -8,3 +8,6 @@ Ref:- https://timonweb.com/django/https-django-development-server-ssl-certificat
 
 /* Security Testing (Basics) - Input Validation and Output Encoding */
 Ref:- https://www.youtube.com/watch?v=3edRWIScJTA
+
+/* How does drf store passwords? */
+https://medium.com/@codeyash/how-does-django-authenticate-the-user-13ca9b7b400c
