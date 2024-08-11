@@ -116,14 +116,10 @@ class UserProjectList(ViewSet):
             payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
             user = User.objects.get(id=payload['id']) # get the user by id of the user
 
-            project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project
-            '''
-                ** IMPORTANT **
-            '''
-            if project.user_id.id == user.id: # project.user_id.id is the id of the user who created the project, which is foreign key    
-                project.delete()
-                return Response({"message": "Project deleted"}, status=status.HTTP_200_OK)
-            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+            project = UserProject.objects.get(id=request.data['id']) # get the project by id of the project   
+            project.delete()
+            return Response({"message": "Project deleted"}, status=status.HTTP_200_OK)
+            # return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.ExpiredSignatureError:
             return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
         except UserProject.DoesNotExist:
@@ -230,6 +226,27 @@ class ProjectImageList(ViewSet):
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except ProjectImages.DoesNotExist:
             return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['delete'])
+    def deleteImage(self, request): # delete an image by id
+        token = request.headers.get('Token')
+        # token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNzIzNDIwNTI5fQ._N52Cmoz23hncZ2P0oWlvUyrTyks883YXyM4Xt7yDZo'
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            payload = jwt.decode(token, 'SECRET', algorithms=['HS256'])
+            user = User.objects.get(id=payload['id'])
+            image = ProjectImages.objects.get(id=request.data['id'])
+            image.delete()
+            return Response({"message": "Deleted Successfully"}, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except ProjectImages.DoesNotExist:
+            return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except jwt.InvalidTokenError:
+            return Response({"message": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ProjectImageUpload(ViewSet):
     @action(detail=False, methods=['post'])

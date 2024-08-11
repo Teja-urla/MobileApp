@@ -18,7 +18,7 @@ urlpatterns = [
 
     path('images/', ImagesList.as_view({'post': 'uploadImage'}), name='image-list'),
 
-    path('project-images/', ProjectImageList.as_view({'post': 'projectImagesList'}), name='project-image-list'),
+    path('project-images/', ProjectImageList.as_view({'post': 'projectImagesList', 'delete' : 'deleteImage' }), name='project-image-list'),
 
     path('project-images/upload/', ProjectImageUpload.as_view({'post': 'projectImageUpload'}), name='project-image-upload'),
 

@@ -34,6 +34,20 @@ class _ProjectimagesState extends State<Projectimages> {
     }
   }
 
+  _deleteImage(int image_id) async {
+    bool isDeleted = await uploadImagesProject.deleteImage(widget.token, image_id);
+    if (isDeleted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Image Deleted Successfully')),
+      );
+      _getProjectImages();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete image')),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +59,7 @@ class _ProjectimagesState extends State<Projectimages> {
     return Scaffold(
        appBar: AppBar(
         title: Text(
-          widget.project_name,
+          'Project-' + widget.project_name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -215,22 +229,33 @@ class _ProjectimagesState extends State<Projectimages> {
              ),
           ),
           
-          Expanded(
-                  child: ListView.builder(
-                    itemCount: projectImagesList.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.only(top: 5.0, left: 0.0),
-                        child: Image.network(
-                          'https://127.0.0.1:8000'+ projectImagesList[index]['image_url'],
-                          // 'https://127.0.0.1:8000/media/savedImages/feature-2-585x390_WnFAR5T.jpg',
-                          width: 200,
-                          height: 200,
-                        ),
-                      );
-                    },
-                  ),
-          )
+Expanded(
+  child: ListView.builder(
+    itemCount: projectImagesList.length,
+    itemBuilder: (context, index) {
+      return Container(
+        margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Image.network(
+              'https://127.0.0.1:8000' + projectImagesList[index]['image_url'],
+              width: 200,
+              height: 200,
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                _deleteImage(projectImagesList[index]['id']);
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  ),
+)
+
         ],
       ),
     );
