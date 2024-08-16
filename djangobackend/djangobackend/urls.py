@@ -16,10 +16,10 @@ urlpatterns = [
 
     path('projects/', UserProjectList.as_view({'get': 'projectList', 'post' : 'addProject', 'put' : 'editProject', 'delete' : 'deleteProject' }), name='project-list'),
 
-    path('images/', ImagesList.as_view({'post': 'uploadImage'}), name='image-list'),
+    # path('images/', ImagesList.as_view({'post': 'uploadImage'}), name='image-list'),
 
-    path('project-images/', ProjectImageList.as_view({'post': 'projectImagesList', 'delete' : 'deleteImage' }), name='project-image-list'),
+    # path('project-images/', ProjectImageList.as_view({'post': 'projectImagesList', 'delete' : 'deleteImage' }), name='project-image-list'),
 
-    path('project-images/upload/', ProjectImageUpload.as_view({'post': 'projectImageUpload'}), name='project-image-upload'),
+    # path('project-images/upload/', ProjectImageUpload.as_view({'post': 'projectImageUpload'}), name='project-image-upload'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

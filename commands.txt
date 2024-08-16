@@ -1,6 +1,7 @@
 python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
+pip list --outdated  ==> lists all the outdated libraries.
 
 git init
 git add .
-git commit -m "Delete Images"
+git commit -m "updated all the outdated libraries"
 git push origin main
