@@ -25,3 +25,10 @@ class ProjectImages(models.Model):
 
     def __str__(self):
         return self.image_name
+    
+class YOLOModel(models.Model):
+    project_id = models.ForeignKey(UserProject, on_delete=models.CASCADE)
+    zip_file = models.FileField(upload_to="YOLOV8/", blank=True)
+
+    def __str__(self):
+        return self.model_name

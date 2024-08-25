@@ -2,8 +2,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
-from .models import Images, UserProject, ProjectImages
-from .serializers import ImageSerializer, UserProjectSerializer, ProjectImageSerializer
+from .models import Images, UserProject, ProjectImages, YOLOModel
+from .serializers import ImageSerializer, UserProjectSerializer, ProjectImageSerializer, YOLOModelSerializer
 import jwt, datetime
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User
@@ -11,6 +11,8 @@ from django.contrib.auth import authenticate
 from urllib.parse import quote
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.decorators import api_view
+import os
+
 
 @api_view(['GET'])
 def test_cors(request):
@@ -166,7 +168,7 @@ class UserProjectList(ViewSet):
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 '''
-::: Image Upload :::
+::: Image Upload :::  // not related to this project
 '''
 
 class ImagesList(ViewSet):
@@ -274,3 +276,21 @@ class ProjectImageUpload(ViewSet):
             return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
         except ProjectImages.DoesNotExist:
             return Response({"message": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class TrainYOLO(ViewSet):
+    @action(detail=False, methods=['post'])
+    def trainYoloModel(self, request):
+        token = request.headers.get('Token')
+        if not token:
+            return Response({"message": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            serializer = YOLOModelSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                # run the python file to train the model i.e python temp.py
+                os.system('python media/YOLOV8/temp.py')
+
+                return Response({"message": "Model trained successfully"}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.ExpiredSignatureError:
+            return Response({"message": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)

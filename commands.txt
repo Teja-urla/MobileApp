@@ -1,7 +1,15 @@
 python manage.py runserver_plus --cert-file cert.pem --key-file key.pem
 pip list --outdated  ==> lists all the outdated libraries.
+python -m venv env  => sets up the virtual environment
+
+'''
+any updation required for the yolo model, we can update here:
+
+'C:\Users\USMM TEJA\AppData\Roaming\Ultralytics\settings.yaml
+
+'''
 
 git init
 git add .
-git commit -m "updated all the outdated libraries"
+git commit -m "uploaded train_model in backend"
 git push origin main

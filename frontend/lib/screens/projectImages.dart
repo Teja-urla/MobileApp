@@ -130,6 +130,34 @@ class _ProjectimagesState extends State<Projectimages> {
             ),
           ),
           const SizedBox(height: 50),
+
+          // Button to train the model
+          Container(
+            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+            child: SizedBox(
+              width: 150,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Call the train model function
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 39, 164, 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0), 
+                  ),
+                ),
+                child: const Text(
+                  'Train Model',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           for (var file in selectedFiles)
             Container(
               margin: const EdgeInsets.only(top: 5.0, left: 0.0),
