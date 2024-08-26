@@ -5,11 +5,11 @@ python -m venv env  => sets up the virtual environment
 '''
 any updation required for the yolo model, we can update here:
 
-'C:\Users\USMM TEJA\AppData\Roaming\Ultralytics\settings.yaml
+C:\Users\USMM TEJA\AppData\Roaming\Ultralytics\settings.yaml
 
 '''
 
 git init
 git add .
-git commit -m "uploaded train_model in backend"
+git commit -m "Completed train model"
 git push origin main

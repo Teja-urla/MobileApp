@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/projectspage.dart';
 import 'package:frontend/backend/upload_images_project.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:frontend/backend/upload_zipfile.dart';
 
 class Projectimages extends StatefulWidget {
   final token;
@@ -17,8 +18,14 @@ class _ProjectimagesState extends State<Projectimages> {
   UploadImagesProject uploadImagesProject = UploadImagesProject();
   List projectImagesList = [];
   FilePickerResult? result;
-  List<PlatformFile> selectedFiles = [];
+  List<PlatformFile> selectedFiles = []; // platform file is used to store the selected files
   int set_number = 1;
+
+  UploadZipfile uploadzipfile = UploadZipfile();
+  FilePickerResult? result_zipfile;
+  PlatformFile? selectedZipFile;
+
+
 
   _getProjectImages() async{
     List projectImages = await uploadImagesProject.ProjectImages(widget.token, widget.project_id, set_number);
@@ -47,6 +54,29 @@ class _ProjectimagesState extends State<Projectimages> {
       );
     }
   }
+
+train_model() async {
+    if(selectedZipFile != null) {
+      try {
+        bool isUploaded = await uploadzipfile.upload_zipfile(widget.token, widget.project_id, result_zipfile!.files.single.path!);
+        if (isUploaded) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Zipfile uploaded successfully')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload zipfile')),
+          );
+        }
+      } catch (e) {
+        print('Error uploading zipfile: $e');
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No zipfile selected')),
+      );
+    }
+}
 
   @override
   void initState() {
@@ -131,47 +161,6 @@ class _ProjectimagesState extends State<Projectimages> {
           ),
           const SizedBox(height: 50),
 
-          // Button to train the model
-          Container(
-            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
-            child: SizedBox(
-              width: 150,
-              height: 35,
-              child: ElevatedButton(
-                onPressed: () async {
-                  // Call the train model function
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 39, 164, 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0), 
-                  ),
-                ),
-                child: const Text(
-                  'Train Model',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          for (var file in selectedFiles)
-            Container(
-              margin: const EdgeInsets.only(top: 5.0, left: 0.0),
-              child: Text(
-                'Selected Image: ${file.name}',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-          const SizedBox(height: 50), // Adjusted height to make it visible
-          
           Container(
             margin: const EdgeInsets.only(top: 5.0, left: 0.0), // Adjust the margin to control position
             child: Column(
@@ -229,7 +218,97 @@ class _ProjectimagesState extends State<Projectimages> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          for (var file in selectedFiles)
+            Container(
+              margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+              child: Text(
+                'Selected Image: ${file.name}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 50), // Adjusted height to make it visible
+
+          Container(
+            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+            child: SizedBox(
+              width: 120,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  result_zipfile = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowedExtensions: ['zip'],
+                    allowMultiple: false // Only one file can be selected
+                  );
+                  setState(() {
+                    selectedZipFile = result_zipfile!.files.single;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFFFFF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0), 
+                  ),
+                ),
+                child: const Text(
+                  'Select zipfile',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+          ),          
+
+          const SizedBox(height: 30),
+          
+          if (selectedZipFile != null)
+            Container(
+              margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+              child: Text(
+                'Selected Zipfile: ${selectedZipFile!.name}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 30),
+          
+          // Button to train the model
+          Container(
+            margin: const EdgeInsets.only(top: 5.0, left: 0.0),
+            child: SizedBox(
+              width: 150,
+              height: 35,
+              child: ElevatedButton(
+                onPressed: () async {
+                  train_model();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 39, 164, 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0), 
+                  ),
+                ),
+                child: const Text(
+                  'Train Model',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 80),
 
           Container(
              child: Row(
